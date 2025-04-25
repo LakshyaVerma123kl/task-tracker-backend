@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
@@ -11,7 +12,7 @@ connectDB();
 
 app.use(
   cors({
-    origin: "https://task-tracker-frontend.vercel.app", // Your Vercel URL
+    origin: "http://localhost:5173", // Update to Vercel URL after deployment
     credentials: true,
   })
 );
