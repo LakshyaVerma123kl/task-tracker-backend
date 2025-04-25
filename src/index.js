@@ -12,7 +12,7 @@ connectDB();
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // Update to Vercel URL after deployment
+    origin: "https://task-tracker-frontend-navy.vercel.app/", // Update to Vercel URL after deployment
     credentials: true,
   })
 );
