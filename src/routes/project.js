@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/auth");
-const Project = require("../models/project"); // Update to lowercase
+const Project = require("./models/project"); // Add .js extension
 const Task = require("../models/Task");
 
 // Get all projects for the authenticated user
