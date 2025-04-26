@@ -1,19 +1,34 @@
 const jwt = require("jsonwebtoken");
 
-module.exports = async (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
+  const tokenFromHeader = req.header("Authorization")?.replace("Bearer ", "");
+  const tokenFromCookie = req.cookies.token;
+  console.log(
+    `[${req.method} ${req.path}] Received token from header:`,
+    tokenFromHeader
+  ); // Debug
+  console.log(
+    `[${req.method} ${req.path}] Received token from cookie:`,
+    tokenFromCookie
+  ); // Debug
+  const token = tokenFromHeader || tokenFromCookie;
+  if (!token) {
+    console.log(`[${req.method} ${req.path}] No token found, denying access`);
+    return res.status(401).json({ message: "No token, authorization denied" });
+  }
   try {
-    const token = req.header("Authorization")?.replace("Bearer ", "");
-    if (!token) {
-      return res
-        .status(401)
-        .json({ message: "No token, authorization denied" });
-    }
+    console.log(`[${req.method} ${req.path}] Verifying token:`, token);
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("Decoded token:", decoded); // Debug log
-    req.user = { id: decoded.userId.toString() }; // Ensure string format
-    console.log("req.user.id:", req.user.id);
+    console.log(`[${req.method} ${req.path}] Token decoded:`, decoded);
+    req.user = { id: decoded.userId };
     next();
   } catch (err) {
-    res.status(401).json({ message: "Token is not valid", error: err.message });
+    console.error(
+      `[${req.method} ${req.path}] Token verification error:`,
+      err.message
+    );
+    res.status(401).json({ message: "Token is invalid" });
   }
 };
+
+module.exports = authMiddleware;
