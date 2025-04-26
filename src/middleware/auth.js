@@ -9,7 +9,9 @@ module.exports = async (req, res, next) => {
         .json({ message: "No token, authorization denied" });
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = { id: decoded.userId }; // Ensure id matches the payload key
+    console.log("Decoded token:", decoded); // Debug log
+    req.user = { id: decoded.userId.toString() }; // Ensure string format
+    console.log("req.user.id:", req.user.id);
     next();
   } catch (err) {
     res.status(401).json({ message: "Token is not valid", error: err.message });
