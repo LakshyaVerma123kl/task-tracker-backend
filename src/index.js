@@ -12,11 +12,16 @@ connectDB();
 
 app.use(
   cors({
-    origin: "https://task-tracker-frontend-navy.vercel.app/", // Update to Vercel URL after deployment
+    origin: "https://task-tracker-frontend-navy.vercel.app",
     credentials: true,
   })
 );
 app.use(express.json());
+
+// Add default route
+app.get("/", (req, res) => {
+  res.send("Task Tracker Backend API is running");
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectRoutes);
