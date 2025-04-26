@@ -7,13 +7,17 @@ const Project = require("../models/Project");
 // Get tasks by project
 router.get("/project/:projectId", authMiddleware, async (req, res) => {
   try {
+    console.log(
+      "GET /api/tasks/project/:projectId - Received request for projectId:",
+      req.params.projectId
+    );
     const project = await Project.findById(req.params.projectId);
-    console.log("GET /project: Project:", project); // Debug log
+    console.log("GET /api/tasks/project/:projectId - Found project:", project);
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
     console.log(
-      "GET /project: Project user:",
+      "GET /api/tasks/project/:projectId - Project user:",
       project.user.toString(),
       "Req user:",
       req.user.id
@@ -22,10 +26,14 @@ router.get("/project/:projectId", authMiddleware, async (req, res) => {
       return res.status(403).json({ message: "Unauthorized" });
     }
     const tasks = await Task.find({ project: req.params.projectId });
-    console.log("GET /project: Tasks fetched:", tasks); // Debug log
+    console.log("GET /api/tasks/project/:projectId - Tasks fetched:", tasks);
     res.json(tasks);
   } catch (err) {
-    console.error("Error in GET /api/tasks/project/:projectId:", err.message);
+    console.error(
+      "Error in GET /api/tasks/project/:projectId:",
+      err.message,
+      err.stack
+    );
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
@@ -33,7 +41,7 @@ router.get("/project/:projectId", authMiddleware, async (req, res) => {
 // Create task
 router.post("/", authMiddleware, async (req, res) => {
   const { title, description, status, projectId } = req.body;
-  console.log("POST /tasks: Request body:", req.body);
+  console.log("POST /api/tasks - Request body:", req.body);
   try {
     if (!title || !projectId) {
       return res
@@ -45,7 +53,7 @@ router.post("/", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Project not found" });
     }
     console.log(
-      "POST /tasks: Project user:",
+      "POST /api/tasks - Project user:",
       project.user.toString(),
       "Req user:",
       req.user.id
@@ -63,13 +71,13 @@ router.post("/", authMiddleware, async (req, res) => {
       completedAt: status === "Completed" ? new Date() : null,
     });
     await task.save();
-    console.log("POST /tasks: Task saved:", task);
+    console.log("POST /api/tasks - Task saved:", task);
     project.tasks.push(task._id);
     await project.save();
-    console.log("POST /tasks: Updated project:", project);
+    console.log("POST /api/tasks - Updated project:", project);
     res.status(201).json(task);
   } catch (err) {
-    console.error("Error in POST /api/tasks:", err.message);
+    console.error("Error in POST /api/tasks:", err.message, err.stack);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
@@ -77,14 +85,14 @@ router.post("/", authMiddleware, async (req, res) => {
 // Update task
 router.put("/:id", authMiddleware, async (req, res) => {
   const { title, description, status } = req.body;
-  console.log("PUT /tasks: Request body:", req.body);
+  console.log("PUT /api/tasks/:id - Request body:", req.body);
   try {
     const task = await Task.findById(req.params.id);
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
     console.log(
-      "PUT /tasks: Task user:",
+      "PUT /api/tasks/:id - Task user:",
       task.user.toString(),
       "Req user:",
       req.user.id
@@ -97,10 +105,10 @@ router.put("/:id", authMiddleware, async (req, res) => {
     if (status) task.status = status;
     task.completedAt = status === "Completed" ? new Date() : null;
     await task.save();
-    console.log("PUT /tasks: Task updated:", task);
+    console.log("PUT /api/tasks/:id - Task updated:", task);
     res.json(task);
   } catch (err) {
-    console.error("Error in PUT /api/tasks/:id:", err.message);
+    console.error("Error in PUT /api/tasks/:id:", err.message, err.stack);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
@@ -113,7 +121,7 @@ router.delete("/:id", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
     console.log(
-      "DELETE /tasks: Task user:",
+      "DELETE /api/tasks/:id - Task user:",
       task.user.toString(),
       "Req user:",
       req.user.id
@@ -127,7 +135,7 @@ router.delete("/:id", authMiddleware, async (req, res) => {
     await Task.deleteOne({ _id: req.params.id });
     res.json({ message: "Task deleted" });
   } catch (err) {
-    console.error("Error in DELETE /api/tasks/:id:", err.message);
+    console.error("Error in DELETE /api/tasks/:id:", err.message, err.stack);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
