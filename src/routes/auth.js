@@ -8,8 +8,8 @@ const User = require("../models/User");
 router.post("/signup", async (req, res) => {
   const { email, password, name, country } = req.body;
   try {
-    // Check if user exists
-    let user = await User.findOne({ email });
+    // Check if user exists with case-insensitive email
+    let user = await User.findByEmail(email);
     if (user) {
       return res.status(400).json({ message: "User already exists" });
     }
@@ -31,17 +31,15 @@ router.post("/signup", async (req, res) => {
       expiresIn: "1h",
     });
 
-    res
-      .status(201)
-      .json({
-        token,
-        user: {
-          id: user._id,
-          email: user.email,
-          name: user.name,
-          country: user.country,
-        },
-      });
+    res.status(201).json({
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        country: user.country,
+      },
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
@@ -52,8 +50,8 @@ router.post("/signup", async (req, res) => {
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   try {
-    // Check if user exists
-    const user = await User.findOne({ email });
+    // Check if user exists with case-insensitive email
+    const user = await User.findByEmail(email);
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
     }

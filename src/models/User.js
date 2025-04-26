@@ -1,12 +1,11 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-const userSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
     unique: true,
-    trim: true,
   },
   password: {
     type: String,
@@ -20,20 +19,20 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  projects: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Project",
-    },
-  ],
 });
 
-// Hash password before saving
-userSchema.pre("save", async function (next) {
-  if (this.isModified("password")) {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
+// Normalize email and hash password before saving
+UserSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.email = this.email.toLowerCase(); // Normalize email to lowercase
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
-module.exports = mongoose.model("User", userSchema);
+// Custom method for case-insensitive email search
+UserSchema.statics.findByEmail = async function (email) {
+  return this.findOne({ email: email.toLowerCase() });
+};
+
+module.exports = mongoose.model("User", UserSchema);
