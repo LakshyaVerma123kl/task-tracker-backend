@@ -1,16 +1,19 @@
 const jwt = require("jsonwebtoken");
 
 const authMiddleware = async (req, res, next) => {
-  const tokenFromHeader = req.header("Authorization")?.replace("Bearer ", "");
-  const tokenFromCookie = req.cookies.token;
+  // Safely extract token from header
+  const tokenFromHeader =
+    req.header("Authorization")?.replace("Bearer ", "") || null;
+  // Safely extract token from cookies, assuming cookie-parser is used
+  const tokenFromCookie = req.cookies ? req.cookies.token : null;
   console.log(
     `[${req.method} ${req.path}] Received token from header:`,
     tokenFromHeader
-  ); // Debug
+  );
   console.log(
     `[${req.method} ${req.path}] Received token from cookie:`,
     tokenFromCookie
-  ); // Debug
+  );
   const token = tokenFromHeader || tokenFromCookie;
   if (!token) {
     console.log(`[${req.method} ${req.path}] No token found, denying access`);
