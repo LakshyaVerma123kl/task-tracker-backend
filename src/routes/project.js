@@ -7,7 +7,12 @@ const Task = require("../models/Task");
 // Get all projects for the authenticated user
 router.get("/", authMiddleware, async (req, res) => {
   try {
+    console.log("Request user ID:", req.user.id); // Debug log
+    if (!req.user.id || typeof req.user.id !== "string") {
+      throw new Error("Invalid user ID from token");
+    }
     const projects = await Project.find({ user: req.user.id });
+    console.log("Found projects:", projects); // Debug log
     res.json(projects);
   } catch (err) {
     console.error("Error in GET /api/projects:", err.message);
@@ -67,7 +72,6 @@ router.delete("/:id", authMiddleware, async (req, res) => {
     if (project.user.toString() !== req.user.id) {
       return res.status(403).json({ message: "Unauthorized" });
     }
-    // Delete associated tasks
     await Task.deleteMany({ project: project._id });
     await Project.deleteOne({ _id: req.params.id });
     res.json({ message: "Project deleted" });
