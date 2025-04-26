@@ -1,18 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/auth");
-const Project = require("../models/Project");
+const Project = require("../models/project"); // Update to lowercase
 const Task = require("../models/Task");
 
 // Get all projects for the authenticated user
 router.get("/", authMiddleware, async (req, res) => {
   try {
-    console.log("Request user ID:", req.user.id); // Debug log
+    console.log("Request user ID:", req.user.id);
     if (!req.user.id || typeof req.user.id !== "string") {
       throw new Error("Invalid user ID from token");
     }
     const projects = await Project.find({ user: req.user.id });
-    console.log("Found projects:", projects); // Debug log
+    console.log("Found projects:", projects);
     res.json(projects);
   } catch (err) {
     console.error("Error in GET /api/projects:", err.message);
